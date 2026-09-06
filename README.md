@@ -20,6 +20,8 @@ Open this folder in Android Studio, ensure Android SDK Platform 35 is installed,
 
 The result is `app\build\outputs\apk\debug\app-debug.apk`.
 
+GitHub publishes the latest successful build as a downloadable release APK.
+
 ## Install on Fire OS 8
 
 1. On the Fire TV, enable **Developer Options** (select the device name in *My Fire TV > About* seven times if it is hidden), then enable **ADB debugging** and **Install unknown apps** as required by your sideload method.
