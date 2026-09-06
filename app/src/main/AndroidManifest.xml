@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <application android:allowBackup="true" android:banner="@drawable/banner" android:icon="@drawable/ic_launcher" android:label="Sharky Home" android:theme="@style/Theme.SharkyHome" android:usesCleartextTraffic="false">
+    <application android:allowBackup="true" android:banner="@drawable/banner" android:icon="@drawable/sharky_logo" android:label="Sharky Home" android:theme="@style/Theme.SharkyHome" android:usesCleartextTraffic="false">
         <activity android:name=".MainActivity" android:screenOrientation="landscape" android:exported="true" android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode" android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -14,6 +14,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
         <receiver android:name=".BootReceiver" android:exported="true">
