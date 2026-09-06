@@ -14,6 +14,19 @@ android { namespace = "com.sharky.home"; compileSdk = 35
         versionName = System.getenv("VERSION_NAME") ?: "1.0.0"
     }
     buildFeatures { viewBinding = true; buildConfig = true }
+    signingConfigs {
+        getByName("debug") {
+            val permanentKey = rootProject.file(".signing/sharky.jks")
+            if (permanentKey.exists()) {
+                storeFile = permanentKey
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            } else if (System.getenv("CI") == "true") {
+                error("Permanent Sharky signing key is required for published builds")
+            }
+        }
+    }
     buildTypes { release { isMinifyEnabled = false; proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro") } }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }

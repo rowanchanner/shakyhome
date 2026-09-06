@@ -22,6 +22,13 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Restore permanent app signing key
+        env:
+          SIGNING_KEY: ${{ secrets.SHARKY_SIGNING_KEY }}
+        run: |
+          test -n "$SIGNING_KEY"
+          mkdir -p .signing
+          printf '%s' "$SIGNING_KEY" | base64 --decode > .signing/sharky.jks
       - name: Build debug APK
         env:
           VERSION_CODE: ${{ github.run_number }}
@@ -44,7 +51,12 @@ jobs:
           arch: x86_64
           profile: Nexus 7
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest
+          script: |
+            ./gradlew connectedDebugAndroidTest
+            adb shell am start -n com.sharky.home/.MainActivity
+            sleep 2
+            adb shell screencap -p /sdcard/sharky-home.png
+            adb pull /sdcard/sharky-home.png app/build/reports/androidTests/sharky-home.png
       - name: Save test results
         if: always()
         uses: actions/upload-artifact@v4
