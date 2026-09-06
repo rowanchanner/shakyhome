@@ -159,10 +159,14 @@ class MainActivity: AppCompatActivity() {
     }
     private fun updateUi() {
         if(!::statusLabel.isInitialized) return
-        addressLabel.text=if(server!=null) "http://$host:8787" else "Receiver offline"
-        codeLabel.text="Pairing code   $code"
-        statusLabel.text=message
-        bar.isIndeterminate=busy.get() && fraction<0; bar.progress=fraction.coerceAtLeast(0)
+        val address=if(server!=null) "http://$host:8787" else "Receiver offline"
+        if(addressLabel.text.toString()!=address) addressLabel.text=address
+        val pairing="Pairing code   $code"
+        if(codeLabel.text.toString()!=pairing) codeLabel.text=pairing
+        if(statusLabel.text.toString()!=message) statusLabel.text=message
+        val waiting=busy.get() && fraction<0
+        if(bar.isIndeterminate!=waiting) bar.isIndeterminate=waiting
+        if(bar.progress!=fraction.coerceAtLeast(0)) bar.progress=fraction.coerceAtLeast(0)
     }
     private fun label(text: String,size: Int,bold: Boolean=false)=TextView(this).apply {
         this.text=text; textSize=size.toFloat(); setTextColor(Color.rgb(231,238,248)); gravity=Gravity.CENTER_VERTICAL
