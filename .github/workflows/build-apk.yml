@@ -19,6 +19,9 @@ jobs:
           java-version: '17'
       - uses: gradle/actions/setup-gradle@v4
       - name: Build debug APK
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: 1.0.${{ github.run_number }}
         run: ./gradlew assembleDebug
       - name: Publish latest APK
         uses: softprops/action-gh-release@v2
