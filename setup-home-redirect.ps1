@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Force -Path $taskDir | Out-Null
 $adb = Join-Path $taskDir 'platform-tools\adb.exe'
 if (-not (Test-Path -LiteralPath $adb)) {
     Write-Host 'Downloading Android platform tools from Google...'
-    Invoke-WebRequest 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip' -OutFile (Join-Path $taskDir 'tools.zip')
+    Invoke-WebRequest -UseBasicParsing 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip' -OutFile (Join-Path $taskDir 'tools.zip')
     Expand-Archive -LiteralPath (Join-Path $taskDir 'tools.zip') -DestinationPath $taskDir -Force
 }
 $serial = "${address}:5555"

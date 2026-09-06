@@ -53,7 +53,8 @@ jobs:
           disable-animations: true
           script: |
             ./gradlew connectedDebugAndroidTest
-            adb shell am start -n com.sharky.home/.MainActivity
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.sharky.home/.MainActivity
             sleep 2
             adb shell screencap -p /sdcard/sharky-home.png
             adb pull /sdcard/sharky-home.png app/build/reports/androidTests/sharky-home.png
