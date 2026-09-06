@@ -1,0 +1,1 @@
+<resources><style name="Theme.SharkyHome" parent="android:style/Theme.Material.NoActionBar"><item name="android:fontFamily">sans</item><item name="android:colorAccent">@color/shark_blue</item><item name="android:windowFullscreen">true</item><item name="android:navigationBarColor">@color/shark_black</item><item name="android:windowActionModeOverlay">true</item></style></resources>
