@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sharky DropBox</title><link rel="icon" href="/logo.png"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><main>
+<header><img src="/logo.png" width="64" height="64" alt="Sharky"><div><strong>Sharky DropBox</strong><span>PC → Fire Stick</span></div><div class="badge">LOCAL CONNECTION</div></header>
+<section class="intro"><p class="eyebrow">LESS TYPING. MORE WATCHING.</p><h1>Drop a link.<br>Pick it up on your TV.</h1><p>Keep Sharky DropBox open on your Fire Stick.<br>Paste a direct APK link below and we’ll take it from here.</p></section>
+<form id="sendForm">
+<label for="pairing">Pairing code <span>Shown on your TV</span></label><input id="pairing" name="pairing" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="off" placeholder="000000" required>
+<label for="url">Download link</label><textarea id="url" name="url" rows="3" placeholder="https://example.com/your-app.apk" spellcheck="false" required maxlength="8192"></textarea>
+<button id="send" type="submit">Send to Fire Stick <span>↗</span></button>
+<p id="feedback" role="status" aria-live="polite">Ready when you are.</p><progress id="progress" max="100" value="0" hidden></progress>
+</form>
+<footer>Same Wi-Fi. No cloud account. Confirm Install on the TV.<br><small>Only send APKs you trust. Use this on your private network.<br>Sharky DropBox is not affiliated with Dropbox, Inc.</small></footer>
+</main></body></html>

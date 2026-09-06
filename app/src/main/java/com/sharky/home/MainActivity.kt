@@ -91,39 +91,21 @@ class MainActivity : AppCompatActivity() {
         } }
     }
     private fun homePage() {
-        val movie=movieApp()
-        val hero=LinearLayout(this).apply {
-            gravity=Gravity.CENTER_VERTICAL; setPadding(dp(28),dp(18),dp(24),dp(18))
-            background=GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,intArrayOf(Color.rgb(25,61,86),Color.rgb(15,26,42))).apply { cornerRadius=dp(16).toFloat() }
+        val sharky = apps.filter { isSharky(it) }.sortedBy { if(it.packageName=="uk.co.sharkmovie.tv") 0 else 1 }
+        section("Sharky apps")
+        if(sharky.isEmpty()) empty("Your Sharky apps will appear here when installed.")
+        else {
+            val row=horizontalRow()
+            sharky.forEach { row.addView(appCard(it,"sharky:${it.packageName}"),LinearLayout.LayoutParams(dp(210),dp(138)).apply { marginEnd=dp(16) }) }
         }
-        val text=LinearLayout(this).apply { orientation=1 }
-        text.addView(label("YOUR NEXT GREAT NIGHT IN",12,accent,true))
-        text.addView(label("Dive into something good.",30,Color.WHITE,true),LinearLayout.LayoutParams(-1,dp(52)))
-        text.addView(label(if(movie==null) "Connect your movie app and make this space yours." else "${movie.label} is ready. Settle in and press play.",15,Color.LTGRAY))
-        text.addView(button(if(movie==null) "Choose movie app  ›" else "Open Movies  ›","hero",true) { if(movie==null) chooseMovies() else launch(movie) },LinearLayout.LayoutParams(dp(225),dp(44)).apply { topMargin=dp(16) })
-        hero.addView(text,LinearLayout.LayoutParams(0,-2,1f))
-        hero.addView(ImageView(this).apply { setImageResource(R.drawable.sharky_logo); scaleType=ImageView.ScaleType.FIT_CENTER; importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO },LinearLayout.LayoutParams(dp(190),dp(160)))
-        content.addView(hero,LinearLayout.LayoutParams(-1,dp(214)))
-        shelf("Favourites",apps.filter { it.packageName in favourites() })
+        val preferred=listOf("com.amazon.firetv.youtube","com.netflix.ninja","com.amazon.firebat","com.spotify.tv.android")
+        val normal=apps.filterNot { isSharky(it) }.sortedWith(compareByDescending<TvApp> { it.packageName in favourites() }
+            .thenBy { preferred.indexOf(it.packageName).let { index -> if(index<0) 100 else index } }.thenBy { it.label.lowercase() })
+        shelf("Your apps",normal)
         shelf("Recently opened",recent().mapNotNull { pkg -> apps.find { it.packageName==pkg } })
-        section("Watch & listen")
-        val row=horizontalRow()
-        listOf(
-            "YouTube" to listOf("com.amazon.firetv.youtube","com.google.android.youtube.tv"),
-            "Netflix" to listOf("com.netflix.ninja","com.netflix.mediaclient"),
-            "Prime Video" to listOf("com.amazon.firebat","com.amazon.amazonvideo.livingroom","com.amazon.avod.thirdpartyclient"),
-            "Spotify" to listOf("com.spotify.tv.android","com.spotify.music")
-        ).forEach { (title,packages) ->
-            val installed=packages.firstNotNullOfOrNull { pkg -> apps.find { it.packageName==pkg } }
-            val tile=installed?.let { appCard(it,"service:${it.packageName}") } ?: button("$title\nNot installed","missing:$title") {
-                AlertDialog.Builder(this).setTitle("$title isn't installed").setMessage("Find it in the Amazon Appstore or choose an installed app from Your apps.")
-                    .setPositiveButton("Open Appstore") { _,_ -> open(Intent(Intent.ACTION_VIEW,Uri.parse("amzn://apps/android?p=${packages.first()}"))) }.setNegativeButton("Cancel",null).show()
-            }
-            row.addView(tile,LinearLayout.LayoutParams(dp(182),dp(116)).apply { marginEnd=dp(14) })
-        }
-        if(favourites().isEmpty()) { section("Make yourself at home"); empty("Hold Select on an app to pin a favourite or make it your Movies app.") }
-        shelf("Your apps",apps)
     }
+    private fun isSharky(app: TvApp): Boolean = app.packageName.startsWith("com.sharky.") ||
+        app.packageName.startsWith("uk.co.sharkmovie.") || app.label.equals("Sharky",true) || app.label.startsWith("Sharky ",true)
     private fun horizontalRow(): LinearLayout {
         val row=LinearLayout(this).apply { clipChildren=false; setPadding(dp(6),dp(8),dp(6),dp(8)) }
         content.addView(HorizontalScrollView(this).apply { isHorizontalScrollBarEnabled=false; clipToPadding=false; addView(row) }); return row

@@ -1,6 +1,8 @@
 .gradle/
 build/
 app/build/
+dropbox/build/
+sharky-dropbox.apk
 local.properties
 *.iml
 .idea/

@@ -35,7 +35,7 @@ jobs:
           VERSION_NAME: 1.0.${{ github.run_number }}
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug :dropbox:testDebugUnitTest
       - name: Enable emulator acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -63,11 +63,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: launcher-test-results
-          path: app/build/reports/androidTests/
+          path: |
+            app/build/reports/androidTests/
+            dropbox/build/reports/
+      - name: Name DropBox APK
+        run: cp dropbox/build/outputs/apk/debug/dropbox-debug.apk sharky-dropbox.apk
       - name: Publish latest APK
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: Sharky Home — latest
           prerelease: true
-          files: app/build/outputs/apk/debug/app-debug.apk
+          files: |
+            app/build/outputs/apk/debug/app-debug.apk
+            sharky-dropbox.apk
