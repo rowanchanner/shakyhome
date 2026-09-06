@@ -1,5 +1,13 @@
 # Sharky Home
 
+## Current version
+
+The updated screen uses the supplied `favicon.ico` shark logo, a featured Movies area, Home/Apps/Settings navigation, app banners, separate favourites and recently opened rows, and a complete app grid. Menu or long-press Select opens app options. Movies can be assigned from an installed-app picker. Clock/network/storage refresh while the launcher is open. App discovery includes Android TV's Leanback-only apps and runs off the UI thread.
+
+See [Home button, startup and updates](docs/HOME-SETUP.md) for the required Fire OS companion setup and the signing-key transition. Installing Sharky by itself does not override Amazon's Home button.
+
+GitHub tests startup, Home/Apps/Settings navigation and activity recreation on an Android 11 emulator before publishing. This checks the Android base used by Fire OS 8, but does not emulate Amazon's Home-button restrictions or prove the result on your physical Stick.
+
 Sharky Home is a remote-first Android TV / Fire TV launcher for Fire OS 8. It is a normal Android HOME app; Fire OS remains responsible for hardware, accounts, networking, and installed apps.
 
 ## What it does
