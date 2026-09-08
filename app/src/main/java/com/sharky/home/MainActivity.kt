@@ -227,6 +227,19 @@ class MainActivity : AppCompatActivity() {
     }
     private fun button(text: String,key: String,selected: Boolean=false,action: () -> Unit): TextView=label(text,14,Color.WHITE,selected).apply {
         gravity=Gravity.CENTER; setPadding(dp(8),dp(4),dp(8),dp(4)); styleFocus(this,key,selected); setOnClickListener { action() }
+        if(key.startsWith("nav:")) setOnKeyListener { _,code,event ->
+            if(code==KeyEvent.KEYCODE_DPAD_DOWN && event.action==KeyEvent.ACTION_DOWN) {
+                focusFirstContentItem(); true
+            } else false
+        }
+    }
+    private fun focusFirstContentItem() {
+        findFocusableContentItem(content)?.requestFocus()
+    }
+    private fun findFocusableContentItem(view: View): View? {
+        if(view !== content && view.isFocusable && view.isShown) return view
+        if(view is ViewGroup) for(index in 0 until view.childCount) findFocusableContentItem(view.getChildAt(index))?.let { return it }
+        return null
     }
     private fun styleFocus(view: View,key: String,selected: Boolean=false) {
         view.tag=key; view.id=View.generateViewId(); view.isFocusable=true; view.isClickable=true
