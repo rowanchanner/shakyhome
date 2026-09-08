@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private var page = "Home"
     private var lastFocus = "nav:Home"
     private var active = false
+    private var fireTvHomeRequestedAt = 0L
     private lateinit var content: LinearLayout
     private lateinit var status: TextView
     private lateinit var scroll: ScrollView
@@ -38,6 +39,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(state: Bundle?) { super.onCreate(state); page=state?.getString("page")?:"Home"; lastFocus=state?.getString("focus")?:"nav:Home"; buildUi(); renderPage() }
     override fun onResume() {
         super.onResume(); active=true; handler.removeCallbacks(ticker); ticker.run()
+        if(fireTvHomeRequestedAt>0 && SystemClock.elapsedRealtime()-fireTvHomeRequestedAt<4_000) {
+            fireTvHomeRequestedAt=0
+            handler.postDelayed({ if(active && !isDestroyed) fireTvHomeHelp() },250)
+        }
         worker.execute {
             val found=runCatching { AppRepository.installed(this) }.getOrDefault(emptyList())
             handler.post { if (!isDestroyed && active) { apps=found; renderPage() } }
@@ -138,15 +143,15 @@ class MainActivity : AppCompatActivity() {
         else toast("${app.label} couldn't open. It may have been removed or disabled.")
     }
     private fun openFireTvHome() {
-        val knownHomes=listOf(
-            "com.amazon.tv.launcher",
-            "com.amazon.firelauncher",
-            "com.amazon.hedwig",
-            "com.amazon.tv.forcedotaupdater.v2"
-        )
-        for(pkg in knownHomes) if(AppRepository.launch(this,pkg)) return
-
+        fireTvHomeRequestedAt=SystemClock.elapsedRealtime()
+        handler.postDelayed({
+            if(active && fireTvHomeRequestedAt>0 && SystemClock.elapsedRealtime()-fireTvHomeRequestedAt>=1_500) {
+                fireTvHomeRequestedAt=0
+                fireTvHomeHelp()
+            }
+        },1_700)
         val explicitHomes=listOf(
+            ComponentName("com.amazon.tv.launcher","com.amazon.tv.launcher.ui.HomeActivity_vNext"),
             ComponentName("com.amazon.tv.launcher","com.amazon.tv.launcher.ui.HomeActivity"),
             ComponentName("com.amazon.firelauncher","com.amazon.firelauncher.Launcher")
         )
@@ -155,9 +160,19 @@ class MainActivity : AppCompatActivity() {
             if(AppRepository.open(this,intent)) return
         }
 
+        val knownHomes=listOf("com.amazon.tv.launcher","com.amazon.firelauncher","com.amazon.firehomestarter")
+        for(pkg in knownHomes) if(AppRepository.launch(this,pkg)) return
+
         val homeIntent=Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if(AppRepository.open(this,homeIntent)) return
+        fireTvHomeRequestedAt=0
         toast("Fire TV Home couldn't open from Sharky. Use the remote Home button or disable the redirect.")
+    }
+    private fun fireTvHomeHelp() {
+        AlertDialog.Builder(this).setTitle("Normal Fire TV Home")
+            .setMessage("Home on Fire is still redirecting Amazon Home back to Sharky.\n\nTo stay on the normal Fire TV home screen, hold the remote Home button for about a second, or press Home twice with a short pause.\n\nYou can also open Home on Fire and map a spare remote button to Amazon Home.")
+            .setPositiveButton("Open Home on Fire") { _,_ -> AppRepository.launch(this,"io.github.toolicious.homeonfire") }
+            .setNegativeButton("Close",null).show()
     }
     private fun favourites()=prefs.getStringSet("favourites",emptySet())?.toSet()?:emptySet()
     private fun recent()=prefs.getString("recent","").orEmpty().split('|').filter { it.isNotBlank() }
