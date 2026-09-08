@@ -23,6 +23,7 @@ class LauncherSmokeTest {
             onView(withText("Your apps")).check(matches(isDisplayed()))
             onView(withTagValue(equalTo("nav:Home"))).perform(click())
             onView(withText("Sharky apps")).check(matches(isDisplayed()))
+            onView(withText("Fire TV Home")).check(matches(isDisplayed()))
         }
     }
 }

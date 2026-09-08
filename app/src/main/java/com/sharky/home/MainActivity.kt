@@ -1,5 +1,6 @@
 package com.sharky.home
 
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -93,11 +94,9 @@ class MainActivity : AppCompatActivity() {
     private fun homePage() {
         val sharky = apps.filter { isSharky(it) }.sortedBy { if(it.packageName=="uk.co.sharkmovie.tv") 0 else 1 }
         section("Sharky apps")
-        if(sharky.isEmpty()) empty("Your Sharky apps will appear here when installed.")
-        else {
-            val row=horizontalRow()
-            sharky.forEach { row.addView(appCard(it,"sharky:${it.packageName}"),LinearLayout.LayoutParams(dp(210),dp(138)).apply { marginEnd=dp(16) }) }
-        }
+        val row=horizontalRow()
+        sharky.forEach { row.addView(appCard(it,"sharky:${it.packageName}"),LinearLayout.LayoutParams(dp(210),dp(138)).apply { marginEnd=dp(16) }) }
+        row.addView(fireTvHomeCard(),LinearLayout.LayoutParams(dp(210),dp(138)).apply { marginEnd=dp(16) })
         val preferred=listOf("com.amazon.firetv.youtube","com.netflix.ninja","com.amazon.firebat","com.spotify.tv.android")
         val normal=apps.filterNot { isSharky(it) }.sortedWith(compareByDescending<TvApp> { it.packageName in favourites() }
             .thenBy { preferred.indexOf(it.packageName).let { index -> if(index<0) 100 else index } }.thenBy { it.label.lowercase() })
@@ -123,9 +122,42 @@ class MainActivity : AppCompatActivity() {
         tile.setOnKeyListener { _,code,event -> if(code==KeyEvent.KEYCODE_MENU) { if(event.action==KeyEvent.ACTION_UP) appOptions(app); true } else false }
         return tile
     }
+    private fun fireTvHomeCard(): View {
+        val tile=LinearLayout(this).apply { orientation=1; gravity=Gravity.CENTER; setPadding(dp(12),dp(12),dp(12),dp(8)) }
+        tile.addView(TextView(this).apply {
+            text="⌂"; textSize=44f; setTextColor(Color.WHITE); gravity=Gravity.CENTER; typeface=Typeface.DEFAULT_BOLD
+        },LinearLayout.LayoutParams(-1,0,1f))
+        tile.addView(label("Fire TV Home",13,Color.WHITE,true).apply { gravity=Gravity.CENTER; maxLines=1 },LinearLayout.LayoutParams(-1,dp(28)))
+        styleFocus(tile,"action:firetvhome")
+        tile.contentDescription="Open normal Fire TV home"
+        tile.setOnClickListener { openFireTvHome() }
+        return tile
+    }
     private fun launch(app: TvApp) {
         if(AppRepository.launch(this,app.packageName)) prefs.edit().putString("recent",(listOf(app.packageName)+recent()).distinct().take(12).joinToString("|")).apply()
         else toast("${app.label} couldn't open. It may have been removed or disabled.")
+    }
+    private fun openFireTvHome() {
+        val knownHomes=listOf(
+            "com.amazon.tv.launcher",
+            "com.amazon.firelauncher",
+            "com.amazon.hedwig",
+            "com.amazon.tv.forcedotaupdater.v2"
+        )
+        for(pkg in knownHomes) if(AppRepository.launch(this,pkg)) return
+
+        val explicitHomes=listOf(
+            ComponentName("com.amazon.tv.launcher","com.amazon.tv.launcher.ui.HomeActivity"),
+            ComponentName("com.amazon.firelauncher","com.amazon.firelauncher.Launcher")
+        )
+        for(component in explicitHomes) {
+            val intent=Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setComponent(component).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            if(AppRepository.open(this,intent)) return
+        }
+
+        val homeIntent=Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        if(AppRepository.open(this,homeIntent)) return
+        toast("Fire TV Home couldn't open from Sharky. Use the remote Home button or disable the redirect.")
     }
     private fun favourites()=prefs.getStringSet("favourites",emptySet())?.toSet()?:emptySet()
     private fun recent()=prefs.getString("recent","").orEmpty().split('|').filter { it.isNotBlank() }
